@@ -76,16 +76,10 @@ router.get("/find/:id", verify, async (req, res) => {
           select: ["fullname", "profilePic"],
         },
         select: ["comment", "poster", "createdAt"],
+      }).populate({
+        path: "submissions.student",
+        select: ["fullname", "profilePic", "course"],
       });
-
-    if (!task) {
-      return res.status(404).json("Task not found");
-    }
-
-    if (task.fileUrl) {
-      task.fileUrl = task.fileUrl.replace(/\\/g, '/');
-    }
-
     res.status(200).json(task);
   } catch (err) {
     res.status(500).json(err);
@@ -142,7 +136,8 @@ router.get("/:subject", verify, async (req, res) => {
             select: ["fullname", "profilePic"],
           },
           select: ["comment", "poster", "createdAt"],
-        });
+        })
+        ;
     } else {
       const subject = await Subject.findOne({ name: req.params.subject });
       //   console.log(req.params.subject, subject._id);

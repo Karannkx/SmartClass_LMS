@@ -7,6 +7,7 @@ import ArrowUpwardRoundedIcon from "@material-ui/icons/ArrowUpwardRounded";
 import ArrowDownwardRoundedIcon from "@material-ui/icons/ArrowDownwardRounded";
 import Add from "@material-ui/icons/Add";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import GetAppIcon from "@material-ui/icons/GetApp"; // Added import for download icon
 import {
   Dialog,
   DialogTitle,
@@ -234,6 +235,13 @@ const DetailedItem = ({ type, data, openEdit }) => {
                       >
                         {attachment.filename}
                       </a>
+                      <button
+                        className="download-btn"
+                        onClick={() => window.open(attachment.link, "_blank")}
+                      >
+                        <GetAppIcon className="download-icon" />
+                        Download
+                      </button>
                     </div>
                   ))}
                 </div>
