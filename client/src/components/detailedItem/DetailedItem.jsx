@@ -228,7 +228,8 @@ const DetailedItem = ({ type, data, openEdit }) => {
                           try {
                             const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
                             if (attachment && attachment.link) {
-                              const fileUrl = attachment.link.startsWith('/uploads/') ? attachment.link : `/uploads/${attachment.link}`;
+                              const fileName = attachment.link.split('/').pop();
+                              const fileUrl = `/uploads/${fileName}`;
                               window.open(`${baseUrl}${fileUrl}`, '_blank');
                             } else {
                               alert('File not found');
@@ -298,7 +299,8 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                       try {
                                         const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
                                         if (submission && submission.file) {
-                                          const fileUrl = submission.file.startsWith('/uploads/') ? submission.file : `/uploads/${submission.file}`;
+                                          const fileName = submission.file.split('/').pop();
+                                          const fileUrl = `/uploads/${fileName}`;
                                           window.open(`${baseUrl}${fileUrl}`, '_blank');
                                         } else {
                                           alert('No submission file available');
