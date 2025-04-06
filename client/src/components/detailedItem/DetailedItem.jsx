@@ -285,7 +285,15 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                 <>
                                   <button 
                                     className="view-btn"
-                                    onClick={() => window.open(`${process.env.REACT_APP_API_URL || ''}${submission.file}`, '_blank')}
+                                    onClick={() => {
+                                      const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
+                                      const fileUrl = submission.file ? 
+                                        (submission.file.startsWith('/') ? submission.file : `/${submission.file}`) :
+                                        '';
+                                      if (fileUrl) {
+                                        window.open(`${baseUrl}${fileUrl}`, '_blank');
+                                      }
+                                    }}
                                   >
                                     View Submission
                                   </button>
