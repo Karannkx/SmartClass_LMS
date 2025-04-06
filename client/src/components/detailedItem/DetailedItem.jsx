@@ -221,10 +221,14 @@ const DetailedItem = ({ type, data, openEdit }) => {
                     <div className="attachment" key={index}>
                       <DescriptionOutlinedIcon className="icon" />
                       <a
-                        href={attachment.link}
+                        href={`${process.env.REACT_APP_API_URL || ''}${attachment.link}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ cursor: 'pointer' }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          window.open(`${process.env.REACT_APP_API_URL || ''}${attachment.link}`, '_blank');
+                        }}
                       >
                         {attachment.filename}
                       </a>
@@ -281,7 +285,7 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                 <>
                                   <button 
                                     className="view-btn"
-                                    onClick={() => window.open(submission.file, '_blank')}
+                                    onClick={() => window.open(`${process.env.REACT_APP_API_URL || ''}${submission.file}`, '_blank')}
                                   >
                                     View Submission
                                   </button>
