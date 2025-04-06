@@ -221,30 +221,9 @@ const DetailedItem = ({ type, data, openEdit }) => {
                     <div className="attachment" key={index}>
                       <DescriptionOutlinedIcon className="icon" />
                       <a
-                        href={attachment.link}
+                        href="#"
                         style={{ cursor: 'pointer' }}
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          try {
-                            const response = await axios.get(attachment.link, {
-                              responseType: 'blob',
-                              headers: {
-                                token: `Bearer ${user.accessToken}`
-                              }
-                            });
-                            const url = window.URL.createObjectURL(new Blob([response.data]));
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.setAttribute('download', attachment.filename);
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            window.URL.revokeObjectURL(url);
-                          } catch (err) {
-                            console.error('Download failed:', err);
-                            alert('Failed to download file');
-                          }
-                        }}
+                        onClick={() => window.open(attachment.link, '_blank')}
                       >
                         {attachment.filename}
                       </a>
@@ -301,27 +280,7 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                 <>
                                   <button 
                                     className="view-btn"
-                                    onClick={async () => {
-                                      try {
-                                        const response = await axios.get(submission.file, {
-                                          responseType: 'blob',
-                                          headers: {
-                                            token: `Bearer ${user.accessToken}`
-                                          }
-                                        });
-                                        const url = window.URL.createObjectURL(new Blob([response.data]));
-                                        const link = document.createElement('a');
-                                        link.href = url;
-                                        link.setAttribute('download', `submission_${submission.student.fullname}_${new Date().toISOString()}.pdf`);
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        link.remove();
-                                        window.URL.revokeObjectURL(url);
-                                      } catch (error) {
-                                        console.error('Download failed:', error);
-                                        alert('Failed to download file');
-                                      }
-                                    }}
+                                    onClick={() => window.open(submission.file, '_blank')}
                                   >
                                     Download
                                   </button>
