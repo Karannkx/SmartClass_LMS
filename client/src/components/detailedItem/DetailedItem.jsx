@@ -238,10 +238,10 @@ const DetailedItem = ({ type, data, openEdit }) => {
                             link.setAttribute('download', attachment.filename);
                             document.body.appendChild(link);
                             link.click();
-                            link.remove();
+                            document.body.removeChild(link);
                             window.URL.revokeObjectURL(url);
-                          } catch (error) {
-                            console.error('Download failed:', error);
+                          } catch (err) {
+                            console.error('Download failed:', err);
                             alert('Failed to download file');
                           }
                         }}
