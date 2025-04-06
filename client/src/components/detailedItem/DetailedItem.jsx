@@ -223,14 +223,27 @@ const DetailedItem = ({ type, data, openEdit }) => {
                       <a
                         href={attachment.link}
                         style={{ cursor: 'pointer' }}
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.preventDefault();
-                          const link = document.createElement('a');
-                          link.href = attachment.link;
-                          link.setAttribute('download', '');
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
+                          try {
+                            const response = await axios.get(attachment.link, {
+                              responseType: 'blob',
+                              headers: {
+                                token: `Bearer ${user.accessToken}`
+                              }
+                            });
+                            const url = window.URL.createObjectURL(new Blob([response.data]));
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.setAttribute('download', attachment.filename);
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                            window.URL.revokeObjectURL(url);
+                          } catch (error) {
+                            console.error('Download failed:', error);
+                            alert('Failed to download file');
+                          }
                         }}
                       >
                         {attachment.filename}
@@ -299,12 +312,7 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                         const url = window.URL.createObjectURL(new Blob([response.data]));
                                         const link = document.createElement('a');
                                         link.href = url;
-                                        link.setAttribute('download', `assignment_${submission._id}.pdf`);
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        link.remove();
-                                        window.URL.revokeObjectURL(url);
-                                        link.setAttribute('download', `submission_${submission._id}.pdf`);
+                                        link.setAttribute('download', `submission_${submission.student.fullname}_${new Date().toISOString()}.pdf`);
                                         document.body.appendChild(link);
                                         link.click();
                                         link.remove();
