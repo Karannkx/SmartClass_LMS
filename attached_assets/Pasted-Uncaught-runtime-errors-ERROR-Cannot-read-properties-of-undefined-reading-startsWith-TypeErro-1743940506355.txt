@@ -1,0 +1,28 @@
+Uncaught runtime errors:
+×
+ERROR
+Cannot read properties of undefined (reading 'startsWith')
+TypeError: Cannot read properties of undefined (reading 'startsWith')
+    at onClick (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:107705:51)
+    at HTMLUnknownElement.callCallback (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:67627:18)
+    at Object.invokeGuardedCallbackDev (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:67671:20)
+    at invokeGuardedCallback (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:67726:35)
+    at invokeGuardedCallbackAndCatchFirstError (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:67740:29)
+    at executeDispatch (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71361:7)
+    at processDispatchQueueItemsInOrder (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71387:11)
+    at processDispatchQueue (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71398:9)
+    at dispatchEventsForPlugins (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71407:7)
+    at https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71585:16
+ERROR
+Cannot read properties of undefined (reading 'startsWith')
+TypeError: Cannot read properties of undefined (reading 'startsWith')
+    at onClick (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:107705:51)
+    at HTMLUnknownElement.callCallback (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:67627:18)
+    at Object.invokeGuardedCallbackDev (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:67671:20)
+    at invokeGuardedCallback (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:67726:35)
+    at invokeGuardedCallbackAndCatchFirstError (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:67740:29)
+    at executeDispatch (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71361:7)
+    at processDispatchQueueItemsInOrder (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71387:11)
+    at processDispatchQueue (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71398:9)
+    at dispatchEventsForPlugins (https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71407:7)
+    at https://05c1a77b-d7e5-44ea-a8b5-9495746c79e7-00-g74goz5zijn0.pike.replit.dev:3000/static/js/bundle.js:71585:16
