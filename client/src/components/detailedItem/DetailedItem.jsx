@@ -221,9 +221,10 @@ const DetailedItem = ({ type, data, openEdit }) => {
                     <div className="attachment" key={index}>
                       <DescriptionOutlinedIcon className="icon" />
                       <a
-                        href="#"
+                        href={attachment.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         style={{ cursor: 'pointer' }}
-                        onClick={() => window.open(attachment.link, '_blank')}
                       >
                         {attachment.filename}
                       </a>
@@ -282,7 +283,7 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                     className="view-btn"
                                     onClick={() => window.open(submission.file, '_blank')}
                                   >
-                                    Download
+                                    View Submission
                                   </button>
                                   <button 
                                     className="feedback-btn"
