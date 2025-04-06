@@ -221,13 +221,13 @@ const DetailedItem = ({ type, data, openEdit }) => {
                     <div className="attachment" key={index}>
                       <DescriptionOutlinedIcon className="icon" />
                       <a
-                        href={`${process.env.REACT_APP_API_URL || ''}${attachment.link}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="#"
                         style={{ cursor: 'pointer' }}
                         onClick={(e) => {
                           e.preventDefault();
-                          window.open(`${process.env.REACT_APP_API_URL || ''}${attachment.link}`, '_blank');
+                          const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
+                          const fileUrl = attachment.link.startsWith('/') ? attachment.link : `/${attachment.link}`;
+                          window.open(`${baseUrl}${fileUrl}`, '_blank');
                         }}
                       >
                         {attachment.filename}
