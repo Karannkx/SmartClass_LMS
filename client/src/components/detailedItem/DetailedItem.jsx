@@ -222,12 +222,12 @@ const DetailedItem = ({ type, data, openEdit }) => {
                       <DescriptionOutlinedIcon className="icon" />
                       <a
                         href={attachment.link}
-                        download={attachment.filename}
+                        style={{ cursor: 'pointer' }}
                         onClick={(e) => {
                           e.preventDefault();
                           const link = document.createElement('a');
                           link.href = attachment.link;
-                          link.setAttribute('download', attachment.filename);
+                          link.setAttribute('download', '');
                           document.body.appendChild(link);
                           link.click();
                           document.body.removeChild(link);
@@ -235,13 +235,6 @@ const DetailedItem = ({ type, data, openEdit }) => {
                       >
                         {attachment.filename}
                       </a>
-                      <button
-                        className="download-btn"
-                        onClick={() => window.open(attachment.link, "_blank")}
-                      >
-                        <GetAppIcon className="download-icon" />
-                        Download
-                      </button>
                     </div>
                   ))}
                 </div>
