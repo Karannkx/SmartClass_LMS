@@ -226,8 +226,12 @@ const DetailedItem = ({ type, data, openEdit }) => {
                         onClick={(e) => {
                           e.preventDefault();
                           const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
-                          const fileUrl = attachment.link.startsWith('/') ? attachment.link : `/${attachment.link}`;
-                          window.open(`${baseUrl}${fileUrl}`, '_blank');
+                          if (attachment && attachment.link) {
+                            const fileUrl = attachment.link.startsWith('/') ? attachment.link : `/${attachment.link}`;
+                            window.open(`${baseUrl}${fileUrl}`, '_blank');
+                          } else {
+                            console.error('Invalid attachment link');
+                          }
                         }}
                       >
                         {attachment.filename}
@@ -286,12 +290,18 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                   <button 
                                     className="view-btn"
                                     onClick={() => {
-                                      const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
-                                      const fileUrl = submission.file ? 
-                                        (submission.file.startsWith('/') ? submission.file : `/${submission.file}`) :
-                                        '';
-                                      if (fileUrl) {
-                                        window.open(`${baseUrl}${fileUrl}`, '_blank');
+                                      try {
+                                        const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
+                                        if (submission && submission.file) {
+                                          const fileUrl = submission.file.startsWith('/') ? submission.file : `/${submission.file}`;
+                                          const fullUrl = `${baseUrl}${fileUrl}`;
+                                          window.open(fullUrl, '_blank');
+                                        } else {
+                                          alert('No submission file available');
+                                        }
+                                      } catch (error) {
+                                        console.error('Error viewing submission:', error);
+                                        alert('Error viewing submission file');
                                       }
                                     }}
                                   >

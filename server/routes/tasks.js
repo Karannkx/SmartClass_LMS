@@ -228,7 +228,7 @@ router.post(
 
       const submission = {
         student: req.user.id,
-        file: `/uploads/${req.file.filename}`,
+        file: req.file ? `/uploads/${req.file.filename}` : null,
         submittedAt: new Date(),
         status: "submitted",
       };
