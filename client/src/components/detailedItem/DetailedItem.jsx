@@ -225,12 +225,17 @@ const DetailedItem = ({ type, data, openEdit }) => {
                         style={{ cursor: 'pointer' }}
                         onClick={(e) => {
                           e.preventDefault();
-                          const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
-                          if (attachment && attachment.link) {
-                            const fileUrl = attachment.link.startsWith('/') ? attachment.link : `/${attachment.link}`;
-                            window.open(`${baseUrl}${fileUrl}`, '_blank');
-                          } else {
-                            console.error('Invalid attachment link');
+                          try {
+                            const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
+                            if (attachment && attachment.link) {
+                              const fileUrl = attachment.link.startsWith('/uploads/') ? attachment.link : `/uploads/${attachment.link}`;
+                              window.open(`${baseUrl}${fileUrl}`, '_blank');
+                            } else {
+                              alert('File not found');
+                            }
+                          } catch (error) {
+                            console.error('Error viewing file:', error);
+                            alert('Error viewing file');
                           }
                         }}
                       >
@@ -293,9 +298,8 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                       try {
                                         const baseUrl = process.env.REACT_APP_API_URL || 'http://0.0.0.0:5000';
                                         if (submission && submission.file) {
-                                          const fileUrl = submission.file.startsWith('/') ? submission.file : `/${submission.file}`;
-                                          const fullUrl = `${baseUrl}${fileUrl}`;
-                                          window.open(fullUrl, '_blank');
+                                          const fileUrl = submission.file.startsWith('/uploads/') ? submission.file : `/uploads/${submission.file}`;
+                                          window.open(`${baseUrl}${fileUrl}`, '_blank');
                                         } else {
                                           alert('No submission file available');
                                         }
