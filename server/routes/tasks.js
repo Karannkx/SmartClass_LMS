@@ -26,57 +26,38 @@ const upload = multer({
   },
 });
 
-// Create
+// Create Task
 router.post("/", verify, async (req, res) => {
   if (req.user.isTeacher || req.user.isAdmin) {
     req.body.poster = req.user.id;
     const newTask = new Task(req.body);
 
-    await newTask.save(function (err) {
-      if (err) res.status(500).json(err);
-      else {
-        newTask.populate({
-          path: "subject",
-          select: "name",
-        });
-
-        newTask.populate(
-          {
-            path: "poster",
-            select: ["fullname", "profilePic"],
-          },
-          function (err, doc) {
-            if (err) res.status(500).json(err);
-            else res.status(201).json(doc);
-          }
-        );
-      }
-    });
+    try {
+      await newTask.save();
+      const populatedTask = await Task.findById(newTask._id)
+        .populate({ path: "subject", select: "name" })
+        .populate({ path: "poster", select: ["fullname", "profilePic"] });
+      res.status(201).json(populatedTask);
+    } catch (err) {
+      res.status(500).json(err);
+    }
   } else {
     res.status(403).json("You're not allowed to do this!");
   }
 });
 
-// Get
+// Get Task
 router.get("/find/:id", verify, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id)
-      .populate({
-        path: "subject",
-        select: "name",
-      })
-      .populate({
-        path: "poster",
-        select: ["fullname", "profilePic"],
-      })
+      .populate({ path: "subject", select: "name" })
+      .populate({ path: "poster", select: ["fullname", "profilePic"] })
       .populate({
         path: "comments",
-        populate: {
-          path: "poster",
-          select: ["fullname", "profilePic"],
-        },
+        populate: { path: "poster", select: ["fullname", "profilePic"] },
         select: ["comment", "poster", "createdAt"],
-      }).populate({
+      })
+      .populate({
         path: "submissions.student",
         select: ["fullname", "profilePic", "course"],
       });
@@ -92,20 +73,11 @@ router.get("/recent", verify, async (req, res) => {
     const newTasks = await Task.find()
       .sort({ _id: -1 })
       .limit(2)
-      .populate({
-        path: "subject",
-        select: "name",
-      })
-      .populate({
-        path: "poster",
-        select: ["fullname", "profilePic"],
-      })
+      .populate({ path: "subject", select: "name" })
+      .populate({ path: "poster", select: ["fullname", "profilePic"] })
       .populate({
         path: "comments",
-        populate: {
-          path: "poster",
-          select: ["fullname", "profilePic"],
-        },
+        populate: { path: "poster", select: ["fullname", "profilePic"] },
         select: ["comment", "poster", "createdAt"],
       });
     res.status(200).json(newTasks);
@@ -121,44 +93,22 @@ router.get("/:subject", verify, async (req, res) => {
     if (req.params.subject === "all") {
       allTasks = await Task.find()
         .sort({ _id: -1 })
-        .populate({
-          path: "subject",
-          select: "name",
-        })
-        .populate({
-          path: "poster",
-          select: ["fullname", "profilePic"],
-        })
+        .populate({ path: "subject", select: "name" })
+        .populate({ path: "poster", select: ["fullname", "profilePic"] })
         .populate({
           path: "comments",
-          populate: {
-            path: "poster",
-            select: ["fullname", "profilePic"],
-          },
+          populate: { path: "poster", select: ["fullname", "profilePic"] },
           select: ["comment", "poster", "createdAt"],
-        })
-        ;
+        });
     } else {
       const subject = await Subject.findOne({ name: req.params.subject });
-      //   console.log(req.params.subject, subject._id);
-      allTasks = await Task.find({
-        subject: subject._id,
-      })
+      allTasks = await Task.find({ subject: subject._id })
         .sort({ _id: -1 })
-        .populate({
-          path: "subject",
-          select: "name",
-        })
-        .populate({
-          path: "poster",
-          select: ["fullname", "profilePic"],
-        })
+        .populate({ path: "subject", select: "name" })
+        .populate({ path: "poster", select: ["fullname", "profilePic"] })
         .populate({
           path: "comments",
-          populate: {
-            path: "poster",
-            select: ["fullname", "profilePic"],
-          },
+          populate: { path: "poster", select: ["fullname", "profilePic"] },
           select: ["comment", "poster", "createdAt"],
         });
     }
@@ -168,37 +118,23 @@ router.get("/:subject", verify, async (req, res) => {
   }
 });
 
-// Update
+// Update Task
 router.put("/:id", verify, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
-    // console.log(task.poster);
-
-    if (req.user.id === task.poster || req.user.isAdmin) {
+    if (req.user.id === task.poster.toString() || req.user.isAdmin) {
       const updatedTask = await Task.findByIdAndUpdate(
         req.params.id,
-        {
-          $set: req.body,
-        },
+        { $set: req.body },
         { new: true }
       )
-        .populate({
-          path: "subject",
-          select: "name",
-        })
-        .populate({
-          path: "poster",
-          select: ["fullname", "profilePic"],
-        })
+        .populate({ path: "subject", select: "name" })
+        .populate({ path: "poster", select: ["fullname", "profilePic"] })
         .populate({
           path: "comments",
-          populate: {
-            path: "poster",
-            select: ["fullname", "profilePic"],
-          },
+          populate: { path: "poster", select: ["fullname", "profilePic"] },
           select: ["comment", "poster", "createdAt"],
         });
-
       res.status(200).json(updatedTask);
     } else {
       res.status(403).json("You're not allowed to do this!");
@@ -208,15 +144,13 @@ router.put("/:id", verify, async (req, res) => {
   }
 });
 
-// Delete
-// Submit assignment
+// Submit Assignment
 router.post(
   "/:id/submit",
   verify,
   upload.single("submission"),
   async (req, res) => {
     try {
-      console.log(req);
       const task = await Task.findById(req.params.id);
       if (!task) {
         return res.status(404).json("Task not found");
@@ -233,7 +167,6 @@ router.post(
         status: "submitted",
       };
 
-      // Add or update submission
       const submissionIndex = task.submissions.findIndex(
         (s) => s.student.toString() === req.user.id
       );
@@ -247,17 +180,11 @@ router.post(
       await task.save();
 
       const updatedTask = await Task.findById(req.params.id)
-        .populate({
-          path: "subject",
-          select: "name",
-        })
-        .populate({
-          path: "poster",
-          select: ["fullname", "profilePic"],
-        })
+        .populate({ path: "subject", select: "name" })
+        .populate({ path: "poster", select: ["fullname", "profilePic"] })
         .populate({
           path: "submissions.student",
-          select: ["fullname", "profilePic"],
+          select: ["fullname", "profilePic", "course"],
         });
 
       res.status(200).json(updatedTask);
@@ -268,8 +195,7 @@ router.post(
   }
 );
 
-// Finalize submission
-// Grade submission
+// Grade Submission
 router.post("/:id/grade", verify, async (req, res) => {
   try {
     if (!req.user.isTeacher) {
@@ -293,14 +219,8 @@ router.post("/:id/grade", verify, async (req, res) => {
     await task.save();
 
     const updatedTask = await Task.findById(req.params.id)
-      .populate({
-        path: "subject",
-        select: "name",
-      })
-      .populate({
-        path: "poster",
-        select: ["fullname", "profilePic"],
-      })
+      .populate({ path: "subject", select: "name" })
+      .populate({ path: "poster", select: ["fullname", "profilePic"] })
       .populate({
         path: "submissions.student",
         select: ["fullname", "course", "profilePic"],
@@ -312,6 +232,7 @@ router.post("/:id/grade", verify, async (req, res) => {
   }
 });
 
+// Finalize Submission
 router.post("/:id/finalize", verify, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
@@ -331,17 +252,11 @@ router.post("/:id/finalize", verify, async (req, res) => {
     await task.save();
 
     const updatedTask = await Task.findById(req.params.id)
-      .populate({
-        path: "subject",
-        select: "name",
-      })
-      .populate({
-        path: "poster",
-        select: ["fullname", "profilePic"],
-      })
+      .populate({ path: "subject", select: "name" })
+      .populate({ path: "poster", select: ["fullname", "profilePic"] })
       .populate({
         path: "submissions.student",
-        select: ["fullname", "profilePic"],
+        select: ["fullname", "profilePic", "course"],
       });
 
     res.status(200).json(updatedTask);
@@ -350,11 +265,12 @@ router.post("/:id/finalize", verify, async (req, res) => {
   }
 });
 
+// Delete Task
 router.delete("/:id", verify, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
 
-    if (req.user.id === task.poster || req.user.isAdmin) {
+    if (req.user.id === task.poster.toString() || req.user.isAdmin) {
       await Task.findByIdAndDelete(req.params.id);
       res.status(200).json("Task has been deleted...");
     } else {
@@ -365,134 +281,83 @@ router.delete("/:id", verify, async (req, res) => {
   }
 });
 
-module.exports = router;
-
-// Create comment
+// Create Comment
 router.post("/comment", verify, async (req, res) => {
   const newComment = new ClassComment({
     comment: req.body.comment,
     poster: req.user.id,
   });
 
-  await newComment.save(function (err) {
-    if (err) res.status(500).json(err);
-    else {
-      Task.findByIdAndUpdate(
-        req.body.itemId,
-        {
-          $push: { comments: newComment._id },
-        },
-        { new: true }
-      )
-        .populate({
-          path: "subject",
-          select: "name",
-        })
-        .populate({
-          path: "poster",
-          select: ["fullname", "profilePic"],
-        })
-        .populate({
-          path: "comments",
-          populate: {
-            path: "poster",
-            select: ["fullname", "profilePic"],
-          },
-          select: ["comment", "poster", "createdAt"],
-        })
-        .exec((err, doc) => {
-          if (err) res.status(500).json(err);
-          else res.status(201).json(doc);
-        });
-    }
-  });
+  try {
+    await newComment.save();
+    const updatedTask = await Task.findByIdAndUpdate(
+      req.body.itemId,
+      { $push: { comments: newComment._id } },
+      { new: true }
+    )
+      .populate({ path: "subject", select: "name" })
+      .populate({ path: "poster", select: ["fullname", "profilePic"] })
+      .populate({
+        path: "comments",
+        populate: { path: "poster", select: ["fullname", "profilePic"] },
+        select: ["comment", "poster", "createdAt"],
+      });
+    res.status(201).json(updatedTask);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
-// Update comment
+// Update Comment
 router.put("/comment/:id", verify, async (req, res) => {
   if (req.user.id === req.body.posterId || req.user.isAdmin) {
     try {
       await ClassComment.findByIdAndUpdate(
         req.params.id,
-        {
-          $set: { comment: req.body.comment },
-        },
-        { new: true },
-        function (err, doc) {
-          if (err) res.status(500).json(err);
-          else {
-            Task.findById(req.body.itemId)
-              .populate({
-                path: "subject",
-                select: "name",
-              })
-              .populate({
-                path: "poster",
-                select: ["fullname", "profilePic"],
-              })
-              .populate({
-                path: "comments",
-                populate: {
-                  path: "poster",
-                  select: ["fullname", "profilePic"],
-                },
-                select: ["comment", "poster", "createdAt"],
-              })
-              .exec((err, doc) => {
-                if (err) res.status(500).json(err);
-                else res.status(200).json(doc);
-              });
-          }
-        }
+        { $set: { comment: req.body.comment } },
+        { new: true }
       );
+      const updatedTask = await Task.findById(req.body.itemId)
+        .populate({ path: "subject", select: "name" })
+        .populate({ path: "poster", select: ["fullname", "profilePic"] })
+        .populate({
+          path: "comments",
+          populate: { path: "poster", select: ["fullname", "profilePic"] },
+          select: ["comment", "poster", "createdAt"],
+        });
+      res.status(200).json(updatedTask);
     } catch (err) {
-      // do nothing
+      res.status(500).json(err);
     }
   } else {
     res.status(403).json("You're not allowed to do this!");
   }
 });
 
-// Delete comment
+// Delete Comment
 router.put("/deletecomment/:id", verify, async (req, res) => {
   if (req.user.id === req.body.posterId || req.user.isAdmin) {
     try {
-      await ClassComment.findByIdAndDelete(req.params.id, function (err, doc) {
-        if (err) res.status(500).json(err);
-        else {
-          Task.findByIdAndUpdate(
-            req.body.itemId,
-            {
-              $pull: { comments: req.params.id },
-            },
-            { new: true }
-          )
-            .populate({
-              path: "subject",
-              select: "name",
-            })
-            .populate({
-              path: "poster",
-              select: ["fullname", "profilePic"],
-            })
-            .populate({
-              path: "comments",
-              populate: {
-                path: "poster",
-                select: ["fullname", "profilePic"],
-              },
-              select: ["comment", "poster", "createdAt"],
-            })
-            .exec((err, doc) => {
-              if (err) res.status(500).json(err);
-              else res.status(200).json(doc);
-            });
-        }
-      });
+      await ClassComment.findByIdAndDelete(req.params.id);
+      const updatedTask = await Task.findByIdAndUpdate(
+        req.body.itemId,
+        { $pull: { comments: req.params.id } },
+        { new: true }
+      )
+        .populate({ path: "subject", select: "name" })
+        .populate({ path: "poster", select: ["fullname", "profilePic"] })
+        .populate({
+          path: "comments",
+          populate: { path: "poster", select: ["fullname", "profilePic"] },
+          select: ["comment", "poster", "createdAt"],
+        });
+      res.status(200).json(updatedTask);
     } catch (err) {
-      // do nothing
+      res.status(500).json(err);
     }
   } else {
     res.status(403).json("You're not allowed to do this!");
   }
 });
+
+module.exports = router;

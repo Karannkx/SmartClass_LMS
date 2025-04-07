@@ -1,31 +1,34 @@
-
 const mongoose = require("mongoose");
 
 const SubmissionSchema = new mongoose.Schema({
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true
+    required: true,
   },
   file: {
     type: String,
-    required: true
+    required: true,
   },
   submittedAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   status: {
     type: String,
-    enum: ['pending', 'submitted', 'rejected'],
-    default: 'pending'
+    enum: ["pending", "submitted", "accepted", "rejected"],
+    default: "pending",
   },
   grade: {
     type: Number,
     min: 0,
-    max: 100
+    max: 100,
   },
-  feedback: String
+  feedback: String,
+  finalized: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const TaskSchema = new mongoose.Schema(
@@ -42,7 +45,7 @@ const TaskSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    attachments: [{ type: Object }],
+    attachments: [{ filename: String, link: String }],
     dueDatetime: { type: Date },
     points: { type: Number },
     submissions: [SubmissionSchema],

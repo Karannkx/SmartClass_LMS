@@ -5,7 +5,9 @@ import dummyProfilePic from "../../assets/dummyProfilePic.png";
 import DescriptionOutlinedIcon from "@material-ui/icons/DescriptionOutlined";
 import ArrowUpwardRoundedIcon from "@material-ui/icons/ArrowUpwardRounded";
 import ArrowDownwardRoundedIcon from "@material-ui/icons/ArrowDownwardRounded";
+import Add from "@material-ui/icons/Add";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
+import GetAppIcon from "@material-ui/icons/GetApp";
 import {
   Dialog,
   DialogTitle,
@@ -49,7 +51,7 @@ const DetailedItem = ({ type, data, openEdit }) => {
     setItem(data);
   }, [data]);
 
-  console.log("Item Data:", JSON.stringify(data, null, 2));
+  console.log("Item Data:", JSON.stringify(data, null, 2)); // Pretty print data
 
   if (user?._id === item?.poster?._id || user.isAdmin) {
     moreOptions = ["Edit", "Delete", "Copy link"];
@@ -151,11 +153,17 @@ const DetailedItem = ({ type, data, openEdit }) => {
     }
 
     try {
-      console.log("Downloading from:", fileUrl);
-      const response = await axios.head(fileUrl);
+      const baseUrl = process.env.REACT_APP_API_URL || "http://0.0.0.0:5000";
+      const fullUrl = `${baseUrl}${fileUrl.startsWith("/") ? fileUrl : "/" + fileUrl}`;
+      console.log("Attempting to download from:", fullUrl); // Debug URL
+      
+      const response = await axios.head(fullUrl, {
+        headers: { token: `Bearer ${user.accessToken}` },
+      });
+      
       if (response.status === 200) {
         const link = document.createElement("a");
-        link.href = fileUrl;
+        link.href = fullUrl;
         link.setAttribute("download", "");
         document.body.appendChild(link);
         link.click();
@@ -164,8 +172,8 @@ const DetailedItem = ({ type, data, openEdit }) => {
         alert(`File not found (Status: ${response.status})`);
       }
     } catch (error) {
-      console.error("Download error:", error.response || error.message);
-      alert("Error downloading file: " + (error.response?.statusText || error.message));
+      console.error("Download error:", error.message);
+      alert("Error downloading file: " + error.message);
     }
   };
 
@@ -182,16 +190,24 @@ const DetailedItem = ({ type, data, openEdit }) => {
                 <p>{item?.votes}</p>
                 <ArrowDownwardRoundedIcon className="icon" />
               </div>
+
               <div className="itemContent">
                 {type === "doubt" && (
                   <div className="topSection">
-                    <Link to={`/${type}s/${item?.subject?.name}`} className="link">
+                    <Link
+                      to={`/${type}s/${item?.subject?.name}`}
+                      className="link"
+                    >
                       <h4 className="subject">{item?.subject?.name}</h4>
                     </Link>
                   </div>
                 )}
+
                 <div className="bottomSection">
-                  <img src={item?.poster?.profilePic || dummyProfilePic} alt="profile" />
+                  <img
+                    src={item?.poster?.profilePic || dummyProfilePic}
+                    alt="profile"
+                  />
                   <div className="textContent">
                     <div className="titleSection">
                       <h4 className="itemTitle">
@@ -202,6 +218,7 @@ const DetailedItem = ({ type, data, openEdit }) => {
                       </h4>
                       <p>{formatDatetime(item?.createdAt)}</p>
                     </div>
+
                     <p className="doubtDesc">{item?.description}</p>
                   </div>
                 </div>
@@ -213,7 +230,9 @@ const DetailedItem = ({ type, data, openEdit }) => {
                 <h1 className="title">{item?.title}</h1>
                 <div className="name-and-time">
                   <h5>{item?.poster?.fullname}</h5>
-                  <h5 className="Postingtime">{formatDatetime(item?.createdAt)}</h5>
+                  <h5 className="Postingtime">
+                    {formatDatetime(item?.createdAt)}
+                  </h5>
                 </div>
                 <h5 className="subject">{item?.subject?.name}</h5>
 
@@ -232,7 +251,8 @@ const DetailedItem = ({ type, data, openEdit }) => {
                               alert("No file link available");
                               return;
                             }
-                            handleDownload(attachment.link);
+                            const fileName = attachment.link.split("/").pop();
+                            handleDownload(`/uploads/${fileName}`);
                           }}
                         >
                           {attachment.filename || "Unnamed File"}
@@ -248,18 +268,18 @@ const DetailedItem = ({ type, data, openEdit }) => {
               {type === "task" && (
                 <div className="your-work">
                   <div className="topDiv">
-                    {item?.points && <h5 className="points">{item?.points} points</h5>}
+                    {item?.points && (
+                      <h5 className="points">{item?.points} points</h5>
+                    )}
                     {item?.dueDatetime && (
-                      <h5 className="dueDatetime">Due {formatDatetime(item?.dueDatetime)}</h5>
+                      <h5 className="dueDatetime">
+                        Due {formatDatetime(item?.dueDatetime)}
+                      </h5>
                     )}
                   </div>
                   <div className="workinfo">
                     <h3>Your Work</h3>
-                    <p>
-                      {item?.submissions?.find((s) => s.student._id === user._id)
-                        ? "Submitted"
-                        : "Pending"}
-                    </p>
+                    <p>{item?.submission ? "Submitted" : "Pending"}</p>
                   </div>
 
                   {user.isTeacher ? (
@@ -282,13 +302,17 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                 <td>{submission.student.fullname}</td>
                                 <td>{submission.student.course}</td>
                                 <td>
-                                  <span className={`status-badge ${submission.status}`}>
+                                  <span
+                                    className={`status-badge ${submission.status}`}
+                                  >
                                     {submission.status}
                                   </span>
                                 </td>
                                 <td>
                                   {submission.submittedAt
-                                    ? new Date(submission.submittedAt).toLocaleString()
+                                    ? new Date(
+                                        submission.submittedAt
+                                      ).toLocaleString()
                                     : "Not submitted"}
                                 </td>
                                 <td>
@@ -303,13 +327,22 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                           }
                                           try {
                                             const baseUrl =
-                                              process.env.REACT_APP_API_URL || "http://localhost:5000";
-                                            const fileUrl = `${baseUrl}${submission.file}`;
+                                              process.env.REACT_APP_API_URL ||
+                                              "http://0.0.0.0:5000";
+                                            const fileName = submission.file
+                                              .split("/")
+                                              .pop();
+                                            const fileUrl = `${baseUrl}/uploads/${fileName}`;
                                             console.log("Viewing submission at:", fileUrl);
 
-                                            const response = await axios.head(fileUrl, {
-                                              headers: { token: `Bearer ${user.accessToken}` },
-                                            });
+                                            const response = await axios.head(
+                                              fileUrl,
+                                              {
+                                                headers: {
+                                                  token: `Bearer ${user.accessToken}`,
+                                                },
+                                              }
+                                            );
 
                                             if (response.status === 200) {
                                               window.open(fileUrl, "_blank");
@@ -317,8 +350,14 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                               alert("Submission file not found");
                                             }
                                           } catch (error) {
-                                            console.error("Error viewing submission:", error);
-                                            alert("Error viewing submission: " + error.message);
+                                            console.error(
+                                              "Error viewing submission:",
+                                              error.response || error.message
+                                            );
+                                            alert(
+                                              "Error viewing submission: " +
+                                                (error.response?.statusText || error.message)
+                                            );
                                           }
                                         }}
                                       >
@@ -328,7 +367,9 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                         className="feedback-btn"
                                         onClick={() => {
                                           const feedback = prompt(
-                                            "Enter feedback for " + submission.student.fullname + ":"
+                                            "Enter feedback for " +
+                                              submission.student.fullname +
+                                              ":"
                                           );
                                           if (feedback !== null) {
                                             handleGradeSubmission(
@@ -340,15 +381,27 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                           }
                                         }}
                                       >
-                                        {submission.feedback ? "Update Feedback" : "Give Feedback"}
+                                        {submission.feedback
+                                          ? "Update Feedback"
+                                          : "Give Feedback"}
                                       </button>
+                                      {!user.isTeacher && submission.feedback && (
+                                        <div className="feedback-text">
+                                          <strong>Teacher's Feedback:</strong>{" "}
+                                          {submission.feedback}
+                                        </div>
+                                      )}
                                       {submission.status === "pending" && (
                                         <>
                                           <button
                                             className="accept-btn"
                                             onClick={() => {
-                                              const grade = prompt("Enter grade (0-100):");
-                                              const feedback = prompt("Enter feedback:");
+                                              const grade = prompt(
+                                                "Enter grade (0-100):"
+                                              );
+                                              const feedback = prompt(
+                                                "Enter feedback:"
+                                              );
                                               if (grade !== null) {
                                                 handleGradeSubmission(
                                                   submission,
@@ -364,8 +417,15 @@ const DetailedItem = ({ type, data, openEdit }) => {
                                           <button
                                             className="reject-btn"
                                             onClick={() => {
-                                              const feedback = prompt("Enter feedback:");
-                                              handleGradeSubmission(submission, "rejected", 0, feedback);
+                                              const feedback = prompt(
+                                                "Enter feedback:"
+                                              );
+                                              handleGradeSubmission(
+                                                submission,
+                                                "rejected",
+                                                0,
+                                                feedback
+                                              );
                                             }}
                                           >
                                             Reject
@@ -389,15 +449,22 @@ const DetailedItem = ({ type, data, openEdit }) => {
                     </div>
                   ) : (
                     <div className="student-actions">
-                      {item?.submissions?.find((s) => s.student._id === user._id)?.status ===
-                      "submitted" ? (
+                      {item?.submissions?.find(
+                        (s) => s.student._id === user._id
+                      )?.status === "submitted" ? (
                         <div className="submission-status">
                           <p className="status-text">Assignment Submitted</p>
-                          {item?.submissions?.find((s) => s.student._id === user._id)?.feedback && (
+                          {item?.submissions?.find(
+                            (s) => s.student._id === user._id
+                          )?.feedback && (
                             <div className="feedback-box">
                               <h4>Teacher's Feedback:</h4>
                               <p>
-                                {item?.submissions?.find((s) => s.student._id === user._id)?.feedback}
+                                {
+                                  item?.submissions?.find(
+                                    (s) => s.student._id === user._id
+                                  )?.feedback
+                                }
                               </p>
                             </div>
                           )}
@@ -439,20 +506,24 @@ const DetailedItem = ({ type, data, openEdit }) => {
                           />
                           <button
                             className="upload-btn"
-                            onClick={() => document.getElementById("taskSubmission").click()}
+                            onClick={() =>
+                              document.getElementById("taskSubmission").click()
+                            }
                           >
                             Upload Assignment (PDF only)
                           </button>
                           <button
                             className="submit-btn"
-                            disabled={!item?.submissions?.find((s) => s.student._id === user._id)}
+                            disabled={!item?.submission}
                             onClick={async () => {
                               try {
                                 const response = await axios.post(
                                   `/api/task/${item._id}/finalize`,
                                   {},
                                   {
-                                    headers: { token: `Bearer ${user.accessToken}` },
+                                    headers: {
+                                      token: `Bearer ${user.accessToken}`,
+                                    },
                                   }
                                 );
                                 if (response.data) {
@@ -469,10 +540,12 @@ const DetailedItem = ({ type, data, openEdit }) => {
                           </button>
                         </div>
                       )}
-                      {item?.submissions?.find((s) => s.student._id === user._id)?.status ===
-                        "rejected" && (
+                      {item?.submissions?.find(
+                        (s) => s.student._id === user._id
+                      )?.status === "rejected" && (
                         <p className="rejection-message">
-                          Your submission was rejected. Please upload a new assignment.
+                          Your submission was rejected. Please upload a new
+                          assignment.
                         </p>
                       )}
                     </div>

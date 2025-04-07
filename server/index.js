@@ -44,7 +44,7 @@ const createDefaultTeacher = async () => {
         isTeacher: true,
         isAdmin: true,
         course: "ALL",
-        semester: "ALL"
+        semester: "ALL",
       });
       await adminTeacher.save();
       console.log("Default admin teacher created successfully");
@@ -55,12 +55,11 @@ const createDefaultTeacher = async () => {
 };
 
 // Connect DB
-mongoose.set('strictQuery', true);
+mongoose.set("strictQuery", true);
 mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    // useCreateIndex: true,
     family: 4,
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
@@ -68,18 +67,18 @@ mongoose
     keepAliveInitialDelay: 300000,
     retryWrites: true,
     w: "majority",
-    maxPoolSize: 10
+    maxPoolSize: 10,
   })
   .then(async () => {
     console.log("DB connected");
     await createDefaultTeacher();
-    const Course = require('./models/Course');
+    const Course = require("./models/Course");
     await Course.createDefaultCourses();
   })
   .catch((err) => console.log(err));
 
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static("uploads"));
 
 // routes
 app.get("/", (req, res) => res.send("SmartClass is running :)"));

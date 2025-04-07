@@ -4,8 +4,6 @@ import dummyProfilePic from "../../assets/dummyProfilePic.png";
 import { Box, Button, Grid, MenuItem, TextField } from "@material-ui/core";
 import { LoadingButton } from "@mui/lab";
 import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import storage from "../../firebase";
 import { AuthContext } from "../../context/authContext/AuthContext";
 import { SubjectsContext } from "../../context/subjectsContext/SubjectsContext";
 import { MaterialsContext } from "../../context/materialsContext/MaterialsContext";
@@ -41,10 +39,10 @@ const ItemForm = ({
   const [formdata, setFormdata] = useState({
     title: data?.title || "",
     description: data?.description || "",
-    subject: data?.subject?.name || currentSubject,
+    subject: data?.subject?.name || currentSubject || "",
     attachments: data?.attachments || [],
-    dueDatetime: data?.dueDatetime || null,
-    points: data?.points || null,
+    dueDatetime: data?.dueDatetime || "",
+    points: data?.points || "",
   });
   const [formErrors, setFormErrors] = useState({
     title: "",
@@ -77,27 +75,25 @@ const ItemForm = ({
   const upload = async (items) => {
     for (const item of items) {
       const formData = new FormData();
-      formData.append('file', item);
-      formData.append('upload_preset', 'unsigned_upload');
-      
+      formData.append("file", item);
+      formData.append("upload_preset", "unsigned_upload");
+
       try {
         const response = await fetch(
           `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/upload`,
           {
-            method: 'POST',
+            method: "POST",
             body: formData,
           }
         );
         const data = await response.json();
-        let tempFormData = { ...formdata };
-        tempFormData.attachments.push({
-          filename: item.name,
-          link: data.secure_url,
-        });
-        setFormdata(tempFormData);
-        setFilesLeftForUpload(filesLeftForUpload - 1);
+        setFormdata((prev) => ({
+          ...prev,
+          attachments: [...prev.attachments, { filename: item.name, link: data.secure_url }],
+        }));
+        setFilesLeftForUpload((prev) => prev - 1);
       } catch (error) {
-        console.error('Upload error:', error);
+        console.error("Upload error:", error);
       }
     }
   };
@@ -105,13 +101,7 @@ const ItemForm = ({
   const handleUpload = ({ target: { files } }) => {
     setFormErrors({ ...formErrors, attachments: "" });
     setFilesLeftForUpload(files.length);
-    let filesData = [];
-
-    for (let i = 0; i < files.length; i++) {
-      filesData.push(files[i]);
-    }
-
-    // console.log(filesData);
+    const filesData = Array.from(files);
     upload(filesData);
   };
 
@@ -121,10 +111,10 @@ const ItemForm = ({
     if (type === "doubtResponse" && formdata.description === "") {
       setFormErrors({ ...formErrors, description: "Answer can't be empty" });
       return;
-    } else if (formdata.title === "") {
+    } else if (formdata.title === "" && type !== "doubtResponse") {
       setFormErrors({ ...formErrors, title: `${type} title can't be empty` });
       return;
-    } else if (formdata.subject === "") {
+    } else if (formdata.subject === "" && type !== "doubtResponse") {
       setFormErrors({ ...formErrors, subject: "Choose a subject" });
       return;
     } else if (formdata.description === "") {
@@ -139,10 +129,12 @@ const ItemForm = ({
     }
 
     let item = { ...formdata };
-    const { _id, course, semester } = subjects.filter(
-      (obj) => obj.name === item.subject
-    )[0];
-    [item.subject, item.course, item.semester] = [_id, course, semester];
+    const subjectObj = subjects.find((obj) => obj.name === item.subject);
+    if (subjectObj) {
+      item.subject = subjectObj._id;
+      item.course = subjectObj.course;
+      item.semester = subjectObj.semester;
+    }
 
     if (type === "material" || type === "doubt" || type === "doubtResponse") {
       delete item.dueDatetime;
@@ -158,7 +150,7 @@ const ItemForm = ({
       delete item.semester;
     }
 
-    console.log(item);
+    console.log("Submitting:", item);
     if (editForm) {
       item._id = data._id;
       if (type === "material") {
@@ -186,7 +178,7 @@ const ItemForm = ({
       title: "",
       description: "",
       subject: "",
-      attachments: "",
+      attachments: [],
       dueDatetime: "",
       points: "",
     });
@@ -230,14 +222,10 @@ const ItemForm = ({
                   rows={3}
                   fullWidth
                   required
-                  error={formErrors.description}
+                  error={!!formErrors.description}
                   helperText={formErrors.description || "Write your answer"}
                   FormHelperTextProps={{
-                    style: {
-                      fontFamily: "Inter",
-                      fontSize: 13,
-                      fontWeight: "500",
-                    },
+                    style: { fontFamily: "Inter", fontSize: 13, fontWeight: "500" },
                   }}
                 />
               </Grid>
@@ -249,23 +237,15 @@ const ItemForm = ({
                     name="title"
                     required
                     fullWidth
-                    label={`${
-                      type.charAt(0).toUpperCase() + type.slice(1)
-                    } title`}
+                    label={`${type.charAt(0).toUpperCase() + type.slice(1)} title`}
                     value={formdata.title}
                     onChange={handleChange}
                     autoFocus
                     variant="outlined"
-                    error={formErrors.title}
-                    helperText={
-                      formErrors.title || `Give title for your ${type}`
-                    }
+                    error={!!formErrors.title}
+                    helperText={formErrors.title || `Give title for your ${type}`}
                     FormHelperTextProps={{
-                      style: {
-                        fontFamily: "Inter",
-                        fontSize: 13,
-                        fontWeight: "500",
-                      },
+                      style: { fontFamily: "Inter", fontSize: 13, fontWeight: "500" },
                     }}
                   />
                 </Grid>
@@ -273,21 +253,16 @@ const ItemForm = ({
                   <TextField
                     label="Subject"
                     name="subject"
-                    defaultValue={formdata.subject}
                     value={formdata.subject}
                     onChange={handleChange}
                     select
                     required
                     fullWidth
                     variant="outlined"
-                    error={formErrors.subject}
+                    error={!!formErrors.subject}
                     helperText={formErrors.subject || "Select subject"}
                     FormHelperTextProps={{
-                      style: {
-                        fontFamily: "Inter",
-                        fontSize: 13,
-                        fontWeight: "500",
-                      },
+                      style: { fontFamily: "Inter", fontSize: 13, fontWeight: "500" },
                     }}
                   >
                     {subjects.map((option) => (
@@ -309,14 +284,10 @@ const ItemForm = ({
                     rows={3}
                     fullWidth
                     required
-                    error={formErrors.description}
+                    error={!!formErrors.description}
                     helperText={formErrors.description || "Add a description"}
                     FormHelperTextProps={{
-                      style: {
-                        fontFamily: "Inter",
-                        fontSize: 13,
-                        fontWeight: "500",
-                      },
+                      style: { fontFamily: "Inter", fontSize: 13, fontWeight: "500" },
                     }}
                   />
                 </Grid>
@@ -337,14 +308,8 @@ const ItemForm = ({
                     color={formErrors.attachments ? "error" : "primary"}
                   >
                     Upload file
-                    <input
-                      type="file"
-                      hidden
-                      multiple
-                      onChange={handleUpload}
-                    />
+                    <input type="file" hidden multiple onChange={handleUpload} />
                   </LoadingButton>
-
                   {formErrors.attachments ? (
                     <p
                       style={{
@@ -369,8 +334,6 @@ const ItemForm = ({
                     </p>
                   )}
                 </Grid>
-
-                <Grid item xs={12} lg={6}></Grid>
               </Grid>
             )}
 
@@ -388,15 +351,10 @@ const ItemForm = ({
                     InputLabelProps={{ shrink: true }}
                     helperText="Mention due date with time (Optional)"
                     FormHelperTextProps={{
-                      style: {
-                        fontFamily: "Inter",
-                        fontSize: 13,
-                        fontWeight: "500",
-                      },
+                      style: { fontFamily: "Inter", fontSize: 13, fontWeight: "500" },
                     }}
                   />
                 </Grid>
-
                 <Grid item xs={12} lg={3}>
                   <TextField
                     autoComplete="points"
@@ -409,11 +367,7 @@ const ItemForm = ({
                     type="number"
                     helperText="Points for this task"
                     FormHelperTextProps={{
-                      style: {
-                        fontFamily: "Inter",
-                        fontSize: 13,
-                        fontWeight: "500",
-                      },
+                      style: { fontFamily: "Inter", fontSize: 13, fontWeight: "500" },
                     }}
                   />
                 </Grid>
@@ -429,7 +383,6 @@ const ItemForm = ({
               >
                 Cancel
               </Button>
-
               <LoadingButton
                 type="submit"
                 variant="contained"
