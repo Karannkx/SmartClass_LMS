@@ -10,7 +10,7 @@ const ItemMd = ({
   index,
   type,
   status = "pending",
-  classTime = "9:30 am",
+  classTime = " ",
   data,
 }) => {
   let {

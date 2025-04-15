@@ -3,22 +3,32 @@
 .sidebar {
   width: 29%;
   height: max-content;
-  background: var(--secondary-color);
+
+  // ✨ Background with gentle contrast to light layout
+  background: linear-gradient(135deg, #f4f6ff, #eef5ff); 
+
   float: right;
   position: absolute;
-  top: 86px;
+
+  top: 120px;
   right: 2%;
+
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  box-shadow: 0px 0px 2px 2px #eeeeee;
-  padding: 25px 35px;
+
+  // Border and shadow for depth
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #dcdcdc;
+  border-radius: 14px;
+
+  padding: 30px 40px;
 
   h2 {
     font-size: 24px;
     color: var(--text-color2);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
 
   .calendar {
@@ -26,6 +36,7 @@
     border: none;
     position: relative;
     left: -12px;
+    margin-bottom: 20px;
   }
 
   .all-classes {

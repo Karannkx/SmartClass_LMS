@@ -1,9 +1,15 @@
 import React, { useContext, useState } from "react";
 import "./style.scss";
+
+// Icons
 import SendIcon from "@material-ui/icons/Send";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import CancelRounded from "@material-ui/icons/CancelRounded";
+
+// Assets
 import dummyProfilePic from "../../assets/dummyProfilePic.png";
+
+// Material UI Components
 import {
   Button,
   Dialog,
@@ -15,9 +21,13 @@ import {
   Menu,
   MenuItem,
 } from "@material-ui/core";
+
+// Contexts
 import { AuthContext } from "../../context/authContext/AuthContext";
 import { MaterialsContext } from "../../context/materialsContext/MaterialsContext";
 import { TasksContext } from "../../context/tasksContext/TasksContext";
+
+// API Calls
 import {
   createCommentInMaterial,
   deleteCommentInMaterial,
@@ -41,26 +51,32 @@ const ClassComment = ({
   itemId,
   setDataChanged,
 }) => {
+  // Context state
   const { user } = useContext(AuthContext);
   const { dispatch: materialsDispatch } = useContext(MaterialsContext);
   const { dispatch: tasksDispatch } = useContext(TasksContext);
+
+  // Local state
   const [comment, setComment] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null); // Menu anchor
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false); // Delete dialog state
+  const [openInput, setOpenInput] = useState(inputMode); // Show input or not
+  const [editing, setEditing] = useState(false); // Is editing existing comment
+  const openMore = Boolean(anchorEl); // Menu visibility
 
-  let moreOptions = ["Edit", "Delete"];
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const [openInput, setOpenInput] = useState(inputMode);
-  const [editing, setEditing] = useState(false);
-  const openMore = Boolean(anchorEl);
+  const moreOptions = ["Edit", "Delete"];
 
+  // Open options menu
   const handleMoreBtnClick = (e) => {
     setAnchorEl(e.currentTarget);
   };
 
-  const handleCloseMore = (e) => {
+  // Close options menu
+  const handleCloseMore = () => {
     setAnchorEl(null);
   };
 
+  // Handles confirmation dialog for deletion
   const handleDialogBtnClick = (e) => {
     if (e.target.textContent === "Yes") {
       if (parentType === "material") {
@@ -77,17 +93,16 @@ const ClassComment = ({
         ).then((updatedData) => updatedData && setDataChanged(updatedData));
       }
     }
-
     setOpenConfirmDialog(false);
   };
 
+  // Handles menu option clicks (Edit/Delete)
   const handleOptionCLick = (e) => {
     e.stopPropagation();
     e.preventDefault();
     setAnchorEl(null);
-    console.log(e.target.textContent);
 
-    let selectedOption = e.target.textContent;
+    const selectedOption = e.target.textContent;
 
     if (selectedOption === "Edit") {
       setEditing(true);
@@ -98,15 +113,18 @@ const ClassComment = ({
     }
   };
 
+  // Cancel editing an existing comment
   const handleCancelEdit = () => {
     setEditing(false);
     setOpenInput(false);
   };
 
+  // Handle new or updated comment submission
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!comment) return;
 
+    // Update existing comment
     if (editing) {
       if (parentType === "material") {
         updateCommentInMaterial(
@@ -114,20 +132,18 @@ const ClassComment = ({
           user,
           materialsDispatch
         ).then((updatedData) => updatedData && setDataChanged(updatedData));
-        setEditing(false);
-        setOpenInput(false);
-        setComment("");
       } else if (parentType === "task") {
         updateCommentInTask(
           { comment, commentId, posterId, itemId },
           user,
           tasksDispatch
         ).then((updatedData) => updatedData && setDataChanged(updatedData));
-        setEditing(false);
-        setOpenInput(false);
-        setComment("");
       }
+      setEditing(false);
+      setOpenInput(false);
+      setComment("");
     } else {
+      // Create new comment
       if (parentType === "material") {
         createCommentInMaterial(
           { comment, itemId },
@@ -139,14 +155,15 @@ const ClassComment = ({
           (updatedData) => updatedData && setDataChanged(updatedData)
         );
       }
+      setComment("");
     }
-    setComment("");
   };
 
   return (
     <div
       className={"comment " + (openInput ? "writeComment" : "writtenComment")}
     >
+      {/* Profile Picture */}
       <img
         src={
           openInput
@@ -157,6 +174,7 @@ const ClassComment = ({
       />
 
       {openInput ? (
+        // Input section (new or edit mode)
         <form className="inputSection" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -164,6 +182,8 @@ const ClassComment = ({
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
+
+          {/* Cancel edit button */}
           {editing && (
             <IconButton
               className="cancelBtn"
@@ -173,12 +193,15 @@ const ClassComment = ({
               <CancelRounded color="error" />
             </IconButton>
           )}
+
+          {/* Submit button */}
           <IconButton type="submit" disabled={!comment}>
             <SendIcon />
           </IconButton>
         </form>
       ) : (
         <>
+          {/* Display posted comment */}
           <div className="textContent">
             <div className="topSection">
               <h4>{postedBy}</h4>
@@ -187,8 +210,10 @@ const ClassComment = ({
             <p className="message">{message}</p>
           </div>
 
+          {/* Show options if user is poster or admin */}
           {(user._id === posterId || user.isAdmin) && (
             <>
+              {/* More options menu */}
               <IconButton
                 className="moreBtn"
                 onClick={handleMoreBtnClick}
@@ -198,27 +223,25 @@ const ClassComment = ({
               >
                 <MoreVertIcon />
               </IconButton>
+
               <Menu
                 className="moreOptions"
                 anchorEl={anchorEl}
                 keepMounted
-                onClose={handleCloseMore}
                 open={openMore}
+                onClose={handleCloseMore}
                 getContentAnchorEl={null}
                 anchorOrigin={{ vertical: "top", horizontal: "left" }}
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
               >
                 {moreOptions.map((option) => (
-                  <MenuItem
-                    key={option}
-                    value={option}
-                    onClick={handleOptionCLick}
-                  >
+                  <MenuItem key={option} onClick={handleOptionCLick}>
                     {option}
                   </MenuItem>
                 ))}
               </Menu>
 
+              {/* Confirmation dialog for deleting a comment */}
               <Dialog
                 open={openConfirmDialog}
                 onClose={() => setOpenConfirmDialog(false)}

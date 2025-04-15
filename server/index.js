@@ -34,13 +34,13 @@ const createDefaultTeacher = async () => {
       console.error("CRYPTOJS_SECRET_KEY not found in environment variables");
       return;
     }
-    const adminEmail = "admin@gmail.com";
+    const adminEmail = "admin123@gmail.com";
     const adminExists = await User.findOne({ email: adminEmail });
     if (!adminExists) {
       const adminTeacher = new User({
         email: adminEmail,
         fullname: "Admin Teacher",
-        password: CryptoJS.AES.encrypt("admin123", process.env.CRYPTOJS_SECRET_KEY).toString(),
+        password: CryptoJS.AES.encrypt("admin@123", process.env.CRYPTOJS_SECRET_KEY).toString(),
         isTeacher: true,
         isAdmin: true,
         course: "ALL",

@@ -32,6 +32,47 @@
       }
 
       .register-input {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+      
+        .course-select {
+          width: 100%;
+          padding: 12px 40px 12px 16px;
+          border: 1.5px solid var(--primary-color);
+          border-radius: 12px;
+          background-color: #fff;
+          color: var(--text-color2);
+          font-size: 16px;
+          appearance: none; // removes default arrow
+          cursor: pointer;
+          transition: all 0.3s ease;
+      
+          &:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+          }
+      
+          &:hover {
+            border-color: var(--accent-color);
+          }
+        }
+      
+        .icon {
+          position: absolute;
+          right: 12px;
+          color: var(--primary-color);
+          pointer-events: none;
+          font-size: 22px;
+        }
+      }
+      
+
+      .register-input {
         margin-bottom: 10px;
         border-bottom: 2px solid var(--primary-color);
         display: flex;
@@ -69,7 +110,7 @@
       }
 
       .btn:hover {
-        box-shadow: 2px 2px 6px var(--text-color1);
+        box-shadow: 2px 2px 16px var(--text-color1);
       }
     }
 

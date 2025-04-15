@@ -46,7 +46,7 @@ router.put("/:id", verify, async (req, res) => {
       res.status(500).json(err);
     }
   } else {
-    res.status(403).json("You're not allowed to do this!");
+    res.status(403).json("Not allowed to do this!");
   }
 });
 
@@ -55,12 +55,12 @@ router.delete("/:id", verify, async (req, res) => {
   if (req.user.id === req.params.id || req.user.isAdmin) {
     try {
       await User.findByIdAndDelete(req.params.id);
-      res.status(200).json("User has been deleted...");
+      res.status(200).json("User deleted...");
     } catch (err) {
       res.status(500).json(err);
     }
   } else {
-    res.status(403).json("You're not allowed to do this!");
+    res.status(403).json("Not allowed to do this!");
   }
 });
 

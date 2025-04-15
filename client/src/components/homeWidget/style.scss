@@ -1,85 +1,42 @@
 @import "../../App.scss";
 
 .widget-container {
-  width: 48%;
-  height: 254px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin-top: 24px;
+  padding: 20px;
 
-  .topSection {
+  .home-widget-button-wrapper {
+    margin-top: 60px; // Space above the first button
+  }
+
+  .custom-home-button {
+    cursor: pointer;
+    padding: 30px; // Smaller padding
+    border-radius: 20px;
+    background: linear-gradient(to right, #e3f2fd, #fcefe6); // Light gradient
+    color: #1f2937;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+    width: 100%;
+    min-height: 130px; // Smaller height
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
 
     h2 {
-      font-size: 24px;
-      color: var(--text-color2);
+      margin: 0;
+      font-size: 24px; // Smaller heading
+      font-weight: 800;
     }
 
-    a {
-      display: flex;
-      align-items: center;
-      text-decoration: none;
-      color: var(--primary-color);
-      transition: all 0.3s ease-out;
+    .description {
+      margin-top: 10px;
+      font-size: 16px; // Slightly smaller subtext
+      color: #4b5563;
     }
 
-    a:hover {
-      color: var(--text-color1);
-    }
-  }
-
-  &.tasks,
-  &.schedules,
-  &.doubts {
-    .topSection {
-      padding-bottom: 18px;
-    }
-  }
-
-  @include tablet {
-    width: 100%;
-
-    &.schedules,
-    &.doubts {
-      .topSection {
-        padding-bottom: 8px;
-      }
-    }
-  }
-
-  @include mobile {
-    &.materials {
-      height: 215px;
-    }
-
-    &.tasks {
-      height: 212px;
-    }
-
-    .topSection {
-      h2 {
-        font-size: 19px;
-      }
-      
-      .link {
-        font-size: 15px;
-      }
-    }
-
-    &.tasks {
-      .topSection {
-        padding-bottom: 13px;
-      }
-    }
-    
-    &.schedules,
-    &.doubts {
-      .topSection {
-        padding-bottom: 8px;
-      }
+    &:hover {
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.25);
+      background: linear-gradient(to right, #e0f7fa, #f3e8ff);
     }
   }
 }

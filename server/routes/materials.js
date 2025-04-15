@@ -31,7 +31,7 @@ router.post("/", verify, async (req, res) => {
       }
     });
   } else {
-    res.status(403).json("You're not allowed to do this!");
+    res.status(403).json("You're not allowed to do it!");
   }
 });
 
@@ -177,7 +177,7 @@ router.put("/:id", verify, async (req, res) => {
 
       res.status(200).json(updatedMaterial);
     } else {
-      res.status(403).json("You're not allowed to do this!");
+      res.status(403).json("You're not allowed to do it!");
     }
   } catch (err) {
     res.status(500).json(err);
@@ -191,9 +191,9 @@ router.delete("/:id", verify, async (req, res) => {
 
     if (req.user.id === material.poster || req.user.isAdmin) {
       await Material.findByIdAndDelete(req.params.id);
-      res.status(200).json("Material has been deleted...");
+      res.status(200).json("Material deleted...");
     } else {
-      res.status(403).json("You're not allowed to do this!");
+      res.status(403).json("You're not allowed to do it!");
     }
   } catch (err) {
     res.status(500).json(err);

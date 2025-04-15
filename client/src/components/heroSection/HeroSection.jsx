@@ -10,20 +10,20 @@ const HeroSection = ({ small, large, title, dept, sem }) => {
     <div className={"heroSection " + (large ? "large" : "small")}>
       <div className="heroSection-content">
         <div className="left">
-          {large && <img src={heroImg} alt="heroimage" />}
+        {large && <img src={heroImg} alt="heroimage" style={{ width: '150px', height: '150px' }} />}
         </div>
 
         <div className="right">
-          <h3>
+          {/* <h3>
             {small
               ? dept + " " + sem + " sem"
-              : `Hi ${user?.fullname.split(" ")[0]}!`}
-          </h3>
-          <h1>{title}</h1>
+              : `Hey ${user?.fullname.split(" ")[0]}!`}
+          </h3> */}
+          <h1>Welcome to SmartClass</h1>
           {large && (
             <p>
-              All your college schedule, notes, task, doubts will be updated
-              here
+              All your class schedule, notes, tasks, and doubts will be managed and updated 
+              here.
             </p>
           )}
         </div>

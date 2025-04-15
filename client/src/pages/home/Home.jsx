@@ -13,7 +13,7 @@ import { getRecentTasks } from "../../context/tasksContext/apiCalls";
 import { getRecentDoubts } from "../../context/doubtsContext/apiCalls";
 import { getSchedules } from "../../context/schedulesContext/apiCalls";
 import HeroSection from "../../components/heroSection/HeroSection";
-import SubjectForm from "../../components/subjectForm/SubjectForm"; // Import SubjectForm component
+import SubjectForm from "../../components/subjectForm/SubjectForm";
 
 const Home = () => {
   const { user } = useContext(AuthContext);
@@ -21,7 +21,7 @@ const Home = () => {
   const { recentTasks, dispatch: tasksDispatch } = useContext(TasksContext);
   const { schedules, dispatch: schedulesDispatch } = useContext(SchedulesContext);
   const { recentDoubts, dispatch: doubtsDispatch } = useContext(DoubtsContext);
-  const [showSubjectForm, setShowSubjectForm] = useState(false); // State to control form visibility
+  const [showSubjectForm, setShowSubjectForm] = useState(false);
 
   useEffect(() => {
     if (recentMaterials?.length < 3 && user) {
@@ -52,15 +52,30 @@ const Home = () => {
       <Navbar />
       <Sidebar />
       <div className="container">
-        {(user.isTeacher || user.isAdmin) && ( // Conditionally render the create subject section
+        {(user.isTeacher || user.isAdmin) && (
           <div className="create-subject-section">
-            <button onClick={() => setShowSubjectForm(!showSubjectForm)} className="create-subject-btn">
-              {showSubjectForm ? 'Close Form' : 'Create New Subject'}
-            </button>
-            {showSubjectForm && <SubjectForm />} {/* Render SubjectForm if showSubjectForm is true */}
+            <div className="subject-btn-wrapper">
+              <button
+                onClick={() => setShowSubjectForm(!showSubjectForm)}
+                className="create-subject-icon-btn"
+              >
+                {showSubjectForm ? "×" : "+"}
+              </button>
+              {!showSubjectForm && (
+                <div className="subject-tooltip">Create New Subject</div>
+              )}
+            </div>
+
+            {showSubjectForm && (
+              <div className="subject-form-wrapper">
+                <SubjectForm />
+              </div>
+            )}
           </div>
         )}
+
         <HeroSection large title="Welcome to WebDesk" />
+
         <div className="widgets-row">
           <HomeWidget
             title="Notes & Materials"
@@ -77,12 +92,13 @@ const Home = () => {
             itemList={recentTasks}
           />
         </div>
+
         <div className="widgets-row">
           <HomeWidget
             title="Class Schedule"
             type="schedules"
             items={schedules}
-            link="/schedule"
+            link="/createclass"
             itemList={schedules}
           />
           <HomeWidget

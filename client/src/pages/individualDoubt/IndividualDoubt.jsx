@@ -1,21 +1,37 @@
 import React, { useContext, useEffect, useState } from "react";
 import "./style.scss";
+
+// Components
 import Navbar from "../../components/navbar/Navbar";
 import Sidebar from "../../components/sidebar/Sidebar";
 import CreateRoundedIcon from "@material-ui/icons/CreateRounded";
-import { useLocation, useParams } from "react-router-dom";
 import DetailedItem from "../../components/detailedItem/DetailedItem";
+
+// Routing and context
+import { useLocation, useParams } from "react-router-dom";
 import { AuthContext } from "../../context/authContext/AuthContext";
+
+// API utility
 import { getItemdata } from "../../utils/fetchData";
 
 const IndividualDoubt = () => {
+  // Get passed-in data from router location (e.g., from previous page)
   const { itemData, openEdit } = useLocation();
+
+  // Extract item ID from URL params
+  const { id: itemId } = useParams();
+
+  // Get current user from context
+  const { user } = useContext(AuthContext);
+
+  // State for doubt data and new response
   const [data, setData] = useState(itemData);
   const [newResponse, setNewResponse] = useState("");
 
+  // Submit a new response to the server
   const handleSubmitResponse = async () => {
-    if (!newResponse.trim()) return;
-    
+    if (!newResponse.trim()) return; // Prevent empty responses
+
     try {
       const response = await fetch(`/api/doubt/${data._id}/responses`, {
         method: 'POST',
@@ -33,16 +49,14 @@ const IndividualDoubt = () => {
       });
 
       const updatedDoubt = await response.json();
-      setData(updatedDoubt);
-      setNewResponse("");
+      setData(updatedDoubt);        // Update local state with new data
+      setNewResponse("");           // Clear the input field
     } catch (err) {
-      console.error(err);
+      console.error(err);           // Handle errors gracefully
     }
   };
 
-  const { id: itemId } = useParams();
-  const { user } = useContext(AuthContext);
-
+  // Fetch doubt data on mount if not passed through location state
   useEffect(() => {
     if (!data) {
       getItemdata("doubt", itemId, user)
@@ -53,20 +67,25 @@ const IndividualDoubt = () => {
     }
   }, []);
 
+  // Dynamically adjust height of textarea based on content
   const adjustTextarea = ({ target }) => {
     target.style.height = target.scrollHeight + "px";
-    if (target.value === "") target.style.height = 96 + "px";
+    if (target.value === "") target.style.height = "96px";
   };
 
   return (
     <div className="individual-doubt">
+      {/* Navigation and sidebar */}
       <Navbar />
       <Sidebar />
 
+      {/* Main content container */}
       <div className="container">
         <div className="wrapper">
+          {/* Main doubt content */}
           <DetailedItem type="doubt" data={data} openEdit={openEdit} />
 
+          {/* Input area for teachers or original poster */}
           {(user?.isTeacher || data?.poster?._id === user?._id) && (
             <div className="writeAnswer">
               <img
@@ -86,11 +105,13 @@ const IndividualDoubt = () => {
             </div>
           )}
 
+          {/* Responses section */}
           <div className="comment-heading">
             <CreateRoundedIcon className="icon" />
             <h3>Responses</h3>
           </div>
 
+          {/* Render each response */}
           {data?.responses?.map((response, index) => (
             <DetailedItem key={index} type="doubtResponse" data={response} />
           ))}
