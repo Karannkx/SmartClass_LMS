@@ -1,4 +1,3 @@
-```markdown
 # 📚 SmartClass_LMS
 
 A full-featured Learning Management System built for the modern virtual classroom experience. 🚀
